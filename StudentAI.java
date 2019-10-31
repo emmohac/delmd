@@ -33,37 +33,45 @@ public class StudentAI extends AI {
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
         Vector<Vector<Move>> moves = board.getAllPossibleMoves(player);
+        System.out.println("moves: "+moves.toString());
          for (Vector<Move> moveVector : moves) {
              for (Move value : moveVector) {
-                 int score = Minimax(1, value, ((player == 1) ? 2 : 1), alpha, beta);
+                 //System.out.println("move: " + value.toString());
+                 board.makeMove(value, 1);
+                 int score = Minimax(1, value, 2, alpha, beta);
+                 board.Undo();
                  if (score > alpha) {
                      alpha = score;
                      best = value;
                  }
              }
          }
+         System.out.println("move: " + best.toString());
          return best;
     }
 
     private int Minimax(int d, Move move, int p, int alpha, int beta) throws InvalidMoveError{
-        board.makeMove(move, p);
-        if(d == 3){
+        //board.makeMove(move, p);
+        if(d == 5){
             //return Evaluate(move);
                int k;
-               k = board.blackCount - board.whiteCount;
-               board.Undo();
+               k = board.whiteCount - board.blackCount;
                return k;
             }
         Vector<Vector<Move>> moves = board.getAllPossibleMoves(p);
         if(moves.isEmpty()){
-            board.Undo();
-            return Evaluate(move);
+            int k;
+            k = board.whiteCount - board.blackCount;
+            return k;
         }
         if(p == 1){
+            //System.out.println("hi");
             int best = Integer.MIN_VALUE;
             for (Vector<Move> moveVector : moves) {
                 for (Move value : moveVector) {
-                    int score = Minimax((d + 1), value, ((p == 1) ? 2 : 1), alpha, beta);
+                    board.makeMove(value, 1);
+                    int score = Minimax((d + 1), value, 2, alpha, beta);
+                    board.Undo();
                     if (score > best) {
                         best = score;
                     }
@@ -76,13 +84,14 @@ public class StudentAI extends AI {
                     }
                 }
             }
-            board.Undo();
             return best;
         }else{
             int best = Integer.MAX_VALUE;
             for (Vector<Move> moveVector : moves) {
                 for (Move value : moveVector) {
-                    int score = Minimax((d + 1), value, ((p == 1) ? 2 : 1), alpha, beta);
+                    board.makeMove(value, 2);
+                    int score = Minimax((d + 1), value, 1, alpha, beta);
+                    board.Undo();
                     if (score < best) {
                         best = score;
                     }
@@ -95,7 +104,6 @@ public class StudentAI extends AI {
                     }
                 }
             }
-            board.Undo();
             return best;
         }
 
