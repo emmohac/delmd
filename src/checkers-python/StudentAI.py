@@ -14,7 +14,7 @@ class StudentAI():
         self.p = p
         self.board = Board(col, row, p)
         self.board.initialize_game()
-        self.MAX_DEPTH = 2
+        self.MAX_DEPTH = 3
         self.opponent = {1: 2, 2: 1}
         self.color = 2
 
@@ -23,13 +23,12 @@ class StudentAI():
             self.board.make_move(move, self.opponent[self.color])
         else:
             self.color = 1
-
-        move = self.smart_move()
+        moves = self.board.get_all_possible_moves(self.color)
+        move = self.smart_move(moves)
         self.board.make_move(move, self.color)
         return move
 
-    def smart_move(self) -> Move:
-        all_moves = self.board.get_all_possible_moves(self.color)
+    def smart_move(self, all_moves) -> Move:
         best_move = Move([])
         root_value = -math.inf
         for checkers in all_moves:
@@ -42,8 +41,14 @@ class StudentAI():
         return best_move
 
     def mini_max(self, depth, move, player) -> int:
+        wc = self.board.white_count
+        bc = self.board.black_count
+
         if depth == self.MAX_DEPTH:
-            return self.board.white_count - self.board.black_count
+            if self.color == player:
+                return bc - wc
+            else:
+                return wc - bc
 
         self.board.make_move(move, self.color)
         all_moves = self.board.get_all_possible_moves(self.color)
@@ -52,19 +57,15 @@ class StudentAI():
             current_value = -math.inf
             for checkers in all_moves:
                 for new_move in checkers:
-                    #self.board.make_move(new_move, self.color)
                     new_value = self.mini_max(depth+1, new_move, self.opponent[self.color])
                     current_value = max(current_value, new_value)
-                    #self.board.undo()
             self.board.undo()
             return current_value
         else:
             current_value = math.inf
             for checkers in all_moves:
                 for new_move in checkers:
-                    #self.board.make_move(new_move, self.color)
                     new_value = self.mini_max(depth+1, new_move, self.opponent[self.color])
                     current_value = min(current_value, new_value)
-                    #self.board.undo()
             self.board.undo()
             return current_value
