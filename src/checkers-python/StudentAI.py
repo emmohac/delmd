@@ -1,4 +1,7 @@
-from random import randint
+# Group: DELMD
+# Team member: Huy Minh Tran    (huymt2)
+#              Fu Hui           (fhui2)
+
 import math
 from BoardClasses import Move
 from BoardClasses import Board
@@ -24,12 +27,13 @@ class StudentAI():
         else:
             self.color = 1
         moves = self.board.get_all_possible_moves(self.color)
-        move = self.smart_move(moves)
+        move = self.best_move(moves)
         self.board.make_move(move, self.color)
         return move
 
+    # MINIMAX STARTS HERE
     def smart_move(self, all_moves) -> Move:
-        best_move = None
+        best_move = Move([])
         root_value = -math.inf
         for checkers in all_moves:
             for move in checkers:
@@ -52,7 +56,6 @@ class StudentAI():
             else:
                 return wc - bc
 
-        #self.board.make_move(move, player)
         all_moves = self.board.get_all_possible_moves(player)
 
         if player is self.color:
@@ -60,18 +63,88 @@ class StudentAI():
             for checkers in all_moves:
                 for new_move in checkers:
                     self.board.make_move(new_move, player)
-                    new_value = self.mini_max(depth+1, self.opponent[player])
+                    new_value = self.mini_max(depth + 1, self.opponent[player])
                     self.board.undo()
                     current_value = max(current_value, new_value)
-            #self.board.undo()
             return current_value
         else:
             current_value = math.inf
             for checkers in all_moves:
                 for new_move in checkers:
                     self.board.make_move(new_move, player)
-                    new_value = self.mini_max(depth+1, self.opponent[player])
+                    new_value = self.mini_max(depth + 1, self.opponent[player])
                     self.board.undo()
                     current_value = min(current_value, new_value)
-            #self.board.undo()
             return current_value
+
+    # MINIMAX ENDS HERE
+
+    # ALPHA BETA PRUNE STARTS HERE
+    def best_move(self, all_moves) -> Move:
+        smart_move = Move([])
+        alpha = -math.inf
+        beta = math.inf
+        for checkers in all_moves:
+            for move in checkers:
+                self.board.make_move(move, self.color)
+                heuristic = self.alpha_beta_prune(0, self.color, alpha, beta)
+                self.board.undo()
+                if heuristic > alpha:
+                    alpha = heuristic
+                    smart_move = Move(move)
+
+        return smart_move
+
+    def alpha_beta_prune(self, depth, player, alpha, beta) -> float:
+        all_moves = self.board.get_all_possible_moves(player)
+
+        if not all_moves or depth is 3:
+            return self.evaluate(player)
+
+        if player is self.color:
+            current_score = -math.inf
+            for checker in all_moves:
+                for move in checker:
+                    self.board.make_move(move, player)
+                    heuristic = self.alpha_beta_prune(depth + 1, self.opponent[player], alpha, beta)
+                    self.board.undo()
+                    current_score = max(heuristic, current_score)
+                    alpha = max(current_score, alpha)
+                    if alpha >= beta:
+                        break
+            return current_score
+        else:
+            current_score = math.inf
+            for checker in all_moves:
+                for move in checker:
+                    self.board.make_move(move, player)
+                    heuristic = self.alpha_beta_prune(depth + 1, self.opponent[player], alpha, beta)
+                    self.board.undo()
+                    current_score = min(heuristic, current_score)
+                    beta = min(current_score, beta)
+                    if alpha >= beta:
+                        break
+            return current_score
+
+    def evaluate(self, player) -> float:
+        white_king = 0
+        black_king = 0
+
+        for all_checkers in self.board.board:
+            for checker in all_checkers:
+                if checker.is_king:
+                    if checker.color == "W":
+                        white_king += 1
+                    else:
+                        black_king += 1
+
+        if player is self.color:
+            score = self.board.black_count - self.board.white_count
+            score += (black_king - white_king) * 1.5
+        else:
+            score = self.board.white_count - self.board.black_count
+            score += (white_king - black_king) * 1.5
+
+        return score
+
+    # ALPHA BETA PRUNE ENDS HERE
