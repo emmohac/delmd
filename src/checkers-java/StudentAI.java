@@ -63,18 +63,18 @@ public class StudentAI extends AI {
                 return score;
             }
         Vector<Vector<Move>> moves = board.getAllPossibleMoves(p);
-        if(moves.isEmpty()){
+        if(moves.size() == 0){
             double score = 0;
             score = Evaluate();
             return score;
         }
-        if(p == 1){
+        if(p == player){
             //System.out.println("hi");
             double best = Double.MIN_VALUE;
             for (Vector<Move> moveVector : moves) {
                 for (Move value : moveVector) {
-                    board.makeMove(value, 1);
-                    double score = Minimax((d + 1), value, 2, alpha, beta);
+                    board.makeMove(value, p);
+                    double score = Minimax((d + 1), value, ((player == 1) ? 2 : 1), alpha, beta);
                     board.Undo();
                     if (score > best) {
                         best = score;
@@ -94,8 +94,8 @@ public class StudentAI extends AI {
             double best = Double.MAX_VALUE;
             for (Vector<Move> moveVector : moves) {
                 for (Move value : moveVector) {
-                    board.makeMove(value, 2);
-                    double score = Minimax((d + 1), value, 1, alpha, beta);
+                    board.makeMove(value, p);
+                    double score = Minimax((d + 1), value, player, alpha, beta);
                     board.Undo();
                     if (score < best) {
                         best = score;
@@ -122,6 +122,56 @@ public class StudentAI extends AI {
             k = (board.blackCount - board.whiteCount);
             for(Vector<Checker> checkerVector : board.board){
                 for(Checker checker : checkerVector){
+                    if(checker.color == "B"){
+                        if(checker.col == board.col - 1 || checker.col == 0){
+                            //System.out.println(checker.col);
+                            k += 0.3;
+                        }
+                        if(board.isInBoard(checker.row -1, checker.col -1)){
+                            for(Vector<Checker> m : board.board){
+                                for(Checker n : checkerVector) {
+                                    if( n.row == checker.row - 1 && n.col == checker.col - 1){
+                                        if(n.color == "B") {
+                                            k += 0.1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if(board.isInBoard(checker.row +1, checker.col -1)){
+                            for(Vector<Checker> m : board.board){
+                                for(Checker n : checkerVector) {
+                                    if( n.row == checker.row + 1 && n.col == checker.col - 1){
+                                        if(n.color == "B") {
+                                            k += 0.1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if(board.isInBoard(checker.row -1, checker.col +1)){
+                            for(Vector<Checker> m : board.board){
+                                for(Checker n : checkerVector) {
+                                    if( n.row == checker.row - 1 && n.col == checker.col + 1){
+                                        if(n.color == "B") {
+                                            k += 0.1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if(board.isInBoard(checker.row +1, checker.col +1)){
+                            for(Vector<Checker> m : board.board){
+                                for(Checker n : checkerVector) {
+                                    if( n.row == checker.row + 1 && n.col == checker.col + 1){
+                                        if(n.color == "B") {
+                                            k += 0.1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                     if(checker.isKing == true){
                         if(checker.color == "W"){
                             wKing++;
@@ -132,11 +182,61 @@ public class StudentAI extends AI {
                     }
                 }
             }
-            k += (bKing - wKing) * 1.5;
+            k += (bKing - wKing) * 0.5;
         }else{
             k = (board.whiteCount - board.blackCount);
             for(Vector<Checker> checkerVector : board.board){
                 for(Checker checker : checkerVector){
+                    if(checker.color == "W"){
+                        if(checker.col == board.col - 1 || checker.col == 0){
+                            //System.out.println(checker.col);
+                            k += 0.3;
+                        }
+                        if(board.isInBoard(checker.row -1, checker.col -1)){
+                            for(Vector<Checker> m : board.board){
+                                for(Checker n : checkerVector) {
+                                    if( n.row == checker.row - 1 && n.col == checker.col - 1){
+                                        if(n.color == "W") {
+                                            k += 0.1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if(board.isInBoard(checker.row +1, checker.col -1)){
+                            for(Vector<Checker> m : board.board){
+                                for(Checker n : checkerVector) {
+                                    if( n.row == checker.row + 1 && n.col == checker.col - 1){
+                                        if(n.color == "W") {
+                                            k += 0.1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if(board.isInBoard(checker.row -1, checker.col +1)){
+                            for(Vector<Checker> m : board.board){
+                                for(Checker n : checkerVector) {
+                                    if( n.row == checker.row - 1 && n.col == checker.col + 1){
+                                        if(n.color == "W") {
+                                            k += 0.1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if(board.isInBoard(checker.row +1, checker.col +1)){
+                            for(Vector<Checker> m : board.board){
+                                for(Checker n : checkerVector) {
+                                    if( n.row == checker.row + 1 && n.col == checker.col + 1){
+                                        if(n.color == "W") {
+                                            k += 0.1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                     if(checker.isKing == true){
                         if(checker.color == "W"){
                             wKing++;
@@ -147,9 +247,9 @@ public class StudentAI extends AI {
                     }
                 }
             }
-            k += (wKing - bKing) * 1.5;
+            k += (wKing - bKing) * 0.5;
         }
          return k;
     }
-    
+
 }
