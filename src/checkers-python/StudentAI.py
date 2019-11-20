@@ -10,7 +10,6 @@ from BoardClasses import Board
 # The following part should be completed by students.
 # Students can modify anything except the class name and exisiting functions and varibles.
 class StudentAI():
-
     def __init__(self, col, row, p):
         self.col = col
         self.row = row
@@ -26,8 +25,9 @@ class StudentAI():
             self.board.make_move(move, self.opponent[self.color])
         else:
             self.color = 1
+
         moves = self.board.get_all_possible_moves(self.color)
-        move = self.best_move(moves)
+        move = self.smart_move(moves)
         self.board.make_move(move, self.color)
         return move
 
@@ -46,17 +46,11 @@ class StudentAI():
 
         return best_move
 
-    def mini_max(self, depth, player) -> int:
-        wc = self.board.white_count
-        bc = self.board.black_count
-
-        if depth == self.MAX_DEPTH:
-            if self.color == player:
-                return bc - wc
-            else:
-                return wc - bc
-
+    def mini_max(self, depth, player) -> float:
         all_moves = self.board.get_all_possible_moves(player)
+
+        if not all_moves or depth == self.MAX_DEPTH:
+            return self.evaluate(player)
 
         if player is self.color:
             current_value = -math.inf
@@ -76,6 +70,11 @@ class StudentAI():
                     self.board.undo()
                     current_value = min(current_value, new_value)
             return current_value
+
+    def minimal_heuristic(self, player):
+        if player is 1:
+            return self.board.black_count - self.board.white_count
+        return self.board.white_count - self.board.black_count
 
     # MINIMAX ENDS HERE
 
@@ -98,7 +97,7 @@ class StudentAI():
     def alpha_beta_prune(self, depth, player, alpha, beta) -> float:
         all_moves = self.board.get_all_possible_moves(player)
 
-        if not all_moves or depth is 3:
+        if not all_moves or depth is self.MAX_DEPTH:
             return self.evaluate(player)
 
         if player is self.color:
@@ -128,22 +127,29 @@ class StudentAI():
 
     def evaluate(self, player) -> float:
         white_king = 0
+        white_chess = 0
         black_king = 0
+        black_chess = 0
 
         for all_checkers in self.board.board:
             for checker in all_checkers:
                 if checker.is_king:
                     if checker.color == "W":
-                        white_king += 1
+                        white_king += 5
+                    elif checker.color == "B":
+                        black_king += 5
+                else:
+                    if checker.color == "w":
+                        white_chess += 1
                     else:
-                        black_king += 1
+                        black_chess += 1
 
-        if player is self.color:
+        if player is 1:
             score = self.board.black_count - self.board.white_count
-            score += (black_king - white_king) * 1.5
+            score += (black_king - white_king + black_chess - white_chess) * 1.5
         else:
             score = self.board.white_count - self.board.black_count
-            score += (white_king - black_king) * 1.5
+            score += (white_king - black_king + white_chess - black_chess) * 1.5
 
         return score
 
