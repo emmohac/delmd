@@ -16,7 +16,8 @@ class StudentAI():
         self.p = p
         self.board = Board(col, row, p)
         self.board.initialize_game()
-        self.MAX_DEPTH = 3
+        self.MAX_DEPTH = 4
+        self.run_time_depth = 3
         self.opponent = {1: 2, 2: 1}
         self.color = 2
 
@@ -27,7 +28,35 @@ class StudentAI():
             self.color = 1
 
         moves = self.board.get_all_possible_moves(self.color)
-        move = self.smart_move(moves)
+        move = self.best_move(moves)
+
+        if self.col is 7:
+            if self.color is 1:
+                if self.board.black_count == (self.col // 2 + 1):
+                    self.run_time_depth = 4
+                if self.board.black_count == self.col // 2:
+                    self.run_time_depth = 5
+            else:
+                if self.board.white_count == (self.col // 2 + 1):
+                    self.run_time_depth = 4
+                if self.board.black_count == self.col // 2:
+                    self.run_time_depth = 5
+        else:
+            if self.color is 1:
+                if self.board.black_count == (self.col // 2 + 1):
+                    self.run_time_depth = 3
+                if self.board.black_count == self.col // 2:
+                    self.run_time_depth = 5
+            else:
+                if self.board.white_count == (self.col // 2 + 1):
+                    self.run_time_depth = 3
+                if self.board.black_count == self.col // 2:
+                    self.run_time_depth = 5
+
+        # Final match
+        if (self.board.white_count + self.board.black_count) < self.board.row // 2:
+            self.run_time_depth = 7
+
         self.board.make_move(move, self.color)
         return move
 
@@ -49,7 +78,7 @@ class StudentAI():
     def mini_max(self, depth, player) -> float:
         all_moves = self.board.get_all_possible_moves(player)
 
-        if not all_moves or depth == self.MAX_DEPTH:
+        if not all_moves or depth == self.run_time_depth:
             return self.evaluate(player)
 
         if player is self.color:
@@ -84,6 +113,7 @@ class StudentAI():
         alpha = -math.inf
         beta = math.inf
         for checkers in all_moves:
+
             for move in checkers:
                 self.board.make_move(move, self.color)
                 heuristic = self.alpha_beta_prune(0, self.color, alpha, beta)
@@ -96,7 +126,7 @@ class StudentAI():
 
     def alpha_beta_prune(self, depth, player, alpha, beta) -> float:
         all_moves = self.board.get_all_possible_moves(player)
-
+        
         if not all_moves or depth is self.MAX_DEPTH:
             return self.evaluate(player)
 
@@ -140,10 +170,17 @@ class StudentAI():
                         black_king += 5
                 else:
                     if checker.color == "w":
-                        white_chess += 1
+                        white_chess += 2
                     else:
-                        black_chess += 1
+                        black_chess += 2
 
+        # all_our_moves = self.board.get_all_possible_moves(player)
+        # all_opponent_moves = self.board.get_all_possible_moves(self.opponent[player])
+        #
+        # self.board.make_move(some_move, us)
+        # self.board.make_move(some_move, opponent)
+        # check if our checker has been captured
+        # if captured => decrement score
         if player is 1:
             score = self.board.black_count - self.board.white_count
             score += (black_king - white_king + black_chess - white_chess) * 1.5
