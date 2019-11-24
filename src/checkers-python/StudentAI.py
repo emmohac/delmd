@@ -16,8 +16,8 @@ class StudentAI():
         self.p = p
         self.board = Board(col, row, p)
         self.board.initialize_game()
-        self.MAX_DEPTH = 4
-        self.run_time_depth = 3
+        self.MAX_DEPTH = 5
+        self.run_time_depth = 5
         self.opponent = {1: 2, 2: 1}
         self.color = 2
 
@@ -30,33 +30,6 @@ class StudentAI():
         moves = self.board.get_all_possible_moves(self.color)
         move = self.best_move(moves)
 
-        if self.col is 7:
-            if self.color is 1:
-                if self.board.black_count == (self.col // 2 + 1):
-                    self.run_time_depth = 4
-                if self.board.black_count == self.col // 2:
-                    self.run_time_depth = 5
-            else:
-                if self.board.white_count == (self.col // 2 + 1):
-                    self.run_time_depth = 4
-                if self.board.black_count == self.col // 2:
-                    self.run_time_depth = 5
-        else:
-            if self.color is 1:
-                if self.board.black_count == (self.col // 2 + 1):
-                    self.run_time_depth = 3
-                if self.board.black_count == self.col // 2:
-                    self.run_time_depth = 5
-            else:
-                if self.board.white_count == (self.col // 2 + 1):
-                    self.run_time_depth = 3
-                if self.board.black_count == self.col // 2:
-                    self.run_time_depth = 5
-
-        # Final match
-        if (self.board.white_count + self.board.black_count) < self.board.row // 2:
-            self.run_time_depth = 7
-
         self.board.make_move(move, self.color)
         return move
 
@@ -67,7 +40,7 @@ class StudentAI():
         for checkers in all_moves:
             for move in checkers:
                 self.board.make_move(move, self.color)
-                new_value = self.mini_max(0, self.opponent[self.color])
+                new_value = self.mini_max(1, self.opponent[self.color])
                 self.board.undo()
                 if new_value > root_value:
                     root_value = new_value
@@ -126,7 +99,7 @@ class StudentAI():
 
     def alpha_beta_prune(self, depth, player, alpha, beta) -> float:
         all_moves = self.board.get_all_possible_moves(player)
-        
+
         if not all_moves or depth is self.MAX_DEPTH:
             return self.evaluate(player)
 
@@ -160,19 +133,24 @@ class StudentAI():
         white_chess = 0
         black_king = 0
         black_chess = 0
-
+        white_list = []
+        black_list = []
         for all_checkers in self.board.board:
             for checker in all_checkers:
-                if checker.is_king:
-                    if checker.color == "W":
+                if checker.color == "W":
+                    white_list.append(checker)
+                    white_chess += 2
+                    if checker.is_king:
                         white_king += 5
-                    elif checker.color == "B":
+                    if checker.col == 0 or checker.col == self.col - 1:
+                        white_chess += 1
+                if checker.color == "B":
+                    black_list.append(checker)
+                    black_chess += 2
+                    if checker.is_king:
                         black_king += 5
-                else:
-                    if checker.color == "w":
-                        white_chess += 2
-                    else:
-                        black_chess += 2
+                    if checker.col == 0 or checker.col == self.col - 1:
+                        black_chess += 1
 
         # all_our_moves = self.board.get_all_possible_moves(player)
         # all_opponent_moves = self.board.get_all_possible_moves(self.opponent[player])
@@ -182,12 +160,26 @@ class StudentAI():
         # check if our checker has been captured
         # if captured => decrement score
         if player is 1:
-            score = self.board.black_count - self.board.white_count
-            score += (black_king - white_king + black_chess - white_chess) * 1.5
+            total_dis = 0
+            for checker in black_list:
+                for opponent in white_list:
+                    total_dis += self.calculate_Dis(checker.row, checker.col, opponent.row, opponent.col)
+
+            score = (black_king - white_king + black_chess - white_chess) / total_dis
         else:
-            score = self.board.white_count - self.board.black_count
-            score += (white_king - black_king + white_chess - black_chess) * 1.5
+            total_dis = 0
+            for checker in white_list:
+                for opponent in black_list:
+                    total_dis += self.calculate_Dis(checker.row, checker.col, opponent.row, opponent.col)
+
+            score = (white_king - black_king + white_chess - black_chess) / total_dis
 
         return score
+
+    def calculate_dis(self, first_row, first_col, second_row, second_col) -> float:
+        a = abs(first_row - second_row)
+        b = abs(first_col - second_col)
+        dis = max(a, b)
+        return dis
 
     # ALPHA BETA PRUNE ENDS HERE
