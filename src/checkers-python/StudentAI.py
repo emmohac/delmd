@@ -17,7 +17,7 @@ class StudentAI():
         self.board = Board(col, row, p)
         self.board.initialize_game()
         self.MAX_DEPTH = 1
-        self.run_time_depth = 10
+        self.run_time_depth = 5
         self.opponent = {1: 2, 2: 1}
         self.color = 2
 
@@ -26,8 +26,6 @@ class StudentAI():
             self.board.make_move(move, self.opponent[self.color])
         else:
             self.color = 1
-
-        #print("Our color: ", self.color)
 
         moves = self.board.get_all_possible_moves(self.color)
         move = self.best_move(moves)
@@ -135,8 +133,12 @@ class StudentAI():
         white_chess = 0
         black_king = 0
         black_chess = 0
-        white_list = []
-        black_list = []
+
+        white_king_list = list()
+        black_king_list = list()
+
+        white_chess_list = []
+        black_chess_list = []
 
         for all_checkers in self.board.board:
             for checker in all_checkers:
@@ -144,41 +146,45 @@ class StudentAI():
                 #     if checker.color == "W":
                 #         white_king += 5
                 #         white_list.append(checker)
-                #     else:
+                #     elif checker.color == 'B':
                 #         black_king += 5
                 #         white_list.append(checker)
                 # else:
-                #     if checker.color == "w":
+                #     if checker.color == "W":
+                #         white_list.append(checker)
                 #         white_chess += 2
-                #     else:
+                #     elif checker.color == 'B':
+                #         black_list.append(checker)
                 #         black_chess += 2
 
                 if checker.color == "W":
-                    white_list.append(checker)
-                    white_chess += 2
+                    white_chess_list.append(checker)
+                    white_chess += 1
                     if checker.is_king:
-                        white_king += 5
+                        white_king += 3
+                        white_king_list.append(checker)
                     if checker.col == 0 or checker.col == self.col - 1:
-                        white_chess += 1
+                        white_chess += 0.5
                 if checker.color == "B":
-                    black_list.append(checker)
-                    black_chess += 2
+                    black_chess_list.append(checker)
+                    black_chess += 1
                     if checker.is_king:
-                        black_king += 5
+                        black_king += 3
+                        black_king_list.append(checker)
                     if checker.col == 0 or checker.col == self.col - 1:
-                        black_chess += 1
+                        black_chess += 0.5
 
-        if player is 1:
+        if self.color is 1:
             total_dis = 1
-            for checker in black_list:
-                for opponent in white_list:
+            for checker in black_chess_list:
+                for opponent in white_chess_list:
                     total_dis += self.calculate_distance(checker.row, checker.col, opponent.row, opponent.col)
 
             score = (black_king - white_king + black_chess - white_chess) / total_dis
         else:
             total_dis = 1
-            for checker in white_list:
-                for opponent in black_list:
+            for checker in white_chess_list:
+                for opponent in black_chess_list:
                     total_dis += self.calculate_distance(checker.row, checker.col, opponent.row, opponent.col)
 
             score = (white_king - black_king + white_chess - black_chess) / total_dis
