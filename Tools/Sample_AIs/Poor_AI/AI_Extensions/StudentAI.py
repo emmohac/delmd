@@ -17,7 +17,7 @@ class StudentAI():
         self.board = Board(col, row, p)
         self.board.initialize_game()
         self.MAX_DEPTH = 1
-        self.run_time_depth = 10
+        self.run_time_depth = 1
         self.opponent = {1: 2, 2: 1}
         self.color = 2
 
@@ -30,6 +30,7 @@ class StudentAI():
         #print("Our color: ", self.color)
 
         moves = self.board.get_all_possible_moves(self.color)
+
         move = self.best_move(moves)
 
         self.board.make_move(move, self.color)
@@ -102,7 +103,7 @@ class StudentAI():
     def alpha_beta_prune(self, depth, player, alpha, beta) -> float:
         all_moves = self.board.get_all_possible_moves(player)
 
-        if not all_moves or depth is self.run_time_depth:
+        if not all_moves or depth is self.MAX_DEPTH:
             return self.evaluate(player)
 
         if player is self.color:
@@ -168,6 +169,13 @@ class StudentAI():
                     if checker.col == 0 or checker.col == self.col - 1:
                         black_chess += 1
 
+        # all_our_moves = self.board.get_all_possible_moves(player)
+        # all_opponent_moves = self.board.get_all_possible_moves(self.opponent[player])
+        #
+        # self.board.make_move(some_move, us)
+        # self.board.make_move(some_move, opponent)
+        # check if our checker has been captured
+        # if captured => decrement score
         if player is 1:
             total_dis = 1
             for checker in black_list:
