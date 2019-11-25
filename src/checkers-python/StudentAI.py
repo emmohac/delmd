@@ -16,8 +16,7 @@ class StudentAI():
         self.p = p
         self.board = Board(col, row, p)
         self.board.initialize_game()
-        self.number_of_move = 0
-        self.run_time_depth = 2
+        self.run_time_depth = 3
         self.opponent = {1: 2, 2: 1}
         self.color = 2
 
@@ -27,78 +26,20 @@ class StudentAI():
         else:
             self.color = 1
 
-        moves = self.board.get_all_possible_moves(self.color)
-
-        if self.number_of_move != 0:
-            if self.color is 1 or self.color is 2:
-                if 3 <= self.number_of_move <= 7:
-                    self.run_time_depth = 3
-                if 8 <= self.number_of_move <= 12:
-                    self.run_time_depth = 4
-                else:
-                    self.run_time_depth = 5
-
-        move = self.best_move(moves)
+        move = self.best_move()
         self.board.make_move(move, self.color)
-        self.number_of_move += 1
         return move
 
-    # MINIMAX STARTS HERE
-    def smart_move(self, all_moves) -> Move:
-        best_move = Move([])
-        root_value = -math.inf
-        for checkers in all_moves:
-            for move in checkers:
-                self.board.make_move(move, self.color)
-                new_value = self.mini_max(1, self.opponent[self.color])
-                self.board.undo()
-                if new_value > root_value:
-                    root_value = new_value
-                    best_move = Move(move)
-
-        return best_move
-
-    def mini_max(self, depth, player) -> float:
-        all_moves = self.board.get_all_possible_moves(player)
-
-        if not all_moves or depth == self.run_time_depth:
-            return self.evaluate(player)
-
-        if player is self.color:
-            current_value = -math.inf
-            for checkers in all_moves:
-                for new_move in checkers:
-                    self.board.make_move(new_move, player)
-                    new_value = self.mini_max(depth + 1, self.opponent[player])
-                    self.board.undo()
-                    current_value = max(current_value, new_value)
-            return current_value
-        else:
-            current_value = math.inf
-            for checkers in all_moves:
-                for new_move in checkers:
-                    self.board.make_move(new_move, player)
-                    new_value = self.mini_max(depth + 1, self.opponent[player])
-                    self.board.undo()
-                    current_value = min(current_value, new_value)
-            return current_value
-
-    def minimal_heuristic(self, player):
-        if player is 1:
-            return self.board.black_count - self.board.white_count
-        return self.board.white_count - self.board.black_count
-
-    # MINIMAX ENDS HERE
-
     # ALPHA BETA PRUNE STARTS HERE
-    def best_move(self, all_moves) -> Move:
+    def best_move(self) -> Move:
+        moves = self.board.get_all_possible_moves(self.color)
         smart_move = Move([])
         alpha = -math.inf
         beta = math.inf
-        for checkers in all_moves:
+        for checkers in moves:
             for move in checkers:
                 self.board.make_move(move, self.color)
-                heuristic = self.alpha_beta_prune(0, self.color, alpha, beta)
+                heuristic = self.alpha_beta_prune(1, self.opponent[self.color], alpha, beta)
                 self.board.undo()
                 if heuristic > alpha:
                     alpha = heuristic
@@ -110,7 +51,7 @@ class StudentAI():
         all_moves = self.board.get_all_possible_moves(player)
 
         if not all_moves or depth is self.run_time_depth:
-            return self.evaluate(player)
+            return self.evaluate()
 
         if player is self.color:
             current_score = -math.inf
@@ -137,7 +78,7 @@ class StudentAI():
                         break
             return current_score
 
-    def evaluate(self, player) -> float:
+    def evaluate(self) -> float:
         white_king = 0
         white_chess = 0
         black_king = 0
@@ -148,43 +89,74 @@ class StudentAI():
 
         white_chess_list = []
         black_chess_list = []
+
         for all_checkers in self.board.board:
             for checker in all_checkers:
-                if checker.is_king:
-                    if checker.color == "W":
-                        white_king += 5
+                if checker.color == "W":
+                    if checker.is_king:
+                        white_king += 1
+                        white_king_list.append(checker)
+                    else:
                         white_chess_list.append(checker)
-                    elif checker.color == 'B':
-                        black_king += 5
+                        white_chess += 1
+                    if checker.col == 0 or checker.col == self.col - 1:
+                        white_chess += 1
+                    if checker.col - 1 > 0 and checker.row - 1 > 0:
+                        if self.board.board[checker.row - 1][checker.col - 1].color == "W":
+                            white_chess += 0.5
+                    if checker.col - 1 > 0 and checker.row + 1 <= self.row - 1:
+                        if self.board.board[checker.row + 1][checker.col - 1].color == "W":
+                            white_chess += 0.5
+                    if checker.col + 1 <= self.col - 1 and checker.row - 1 > 0:
+                        if self.board.is_in_board(checker.row - 1, checker.col + 1) and \
+                                self.board.board[checker.row - 1][checker.col + 1].color == "W":
+                            white_chess += 0.5
+                    if checker.col + 1 <= self.col - 1 and checker.row + 1 <= self.row - 1:
+                        if self.board.is_in_board(checker.row + 1, checker.row + 1) and \
+                                self.board.board[checker.row + 1][checker.row + 1].color == "W":
+                            white_chess += 0.5
+                if checker.color == "B":
+                    if checker.is_king:
+                        black_king_list.append(checker)
+                        black_king += 1
+                    else:
                         black_chess_list.append(checker)
-                else:
-                    if checker.color == "W":
-                        white_chess_list.append(checker)
-                        white_chess += 2
-                    elif checker.color == 'B':
-                        black_chess_list.append(checker)
-                        black_chess += 2
-        #
-        # if self.color is 1:
-        #     total_dis = 1
-        #     for checker in black_chess_list:
-        #         for opponent in white_chess_list:
-        #             total_dis += self.calculate_distance(checker.row, checker.col, opponent.row, opponent.col)
-        #
-        #     score = (black_king - white_king + black_chess - white_chess) / total_dis
-        # else:
-        #     total_dis = 1
-        #     for checker in white_chess_list:
-        #         for opponent in black_chess_list:
-        #             total_dis += self.calculate_distance(checker.row, checker.col, opponent.row, opponent.col)
-        #
-        #     score = (white_king - black_king + white_chess - black_chess) / total_dis
-        if player is 1:
-            score = self.board.black_count - self.board.white_count
-            score += (black_king - white_king + black_chess - white_chess) * 1.5
+                        black_chess += 1
+                    if checker.col == 0 or checker.col == self.col - 1:
+                        black_chess += 1
+                    if checker.col - 1 > 0 and checker.row - 1 > 0:
+                        if self.board.board[checker.row - 1][checker.col - 1].color == "B":
+                            black_chess += 0.5
+                    if checker.col - 1 > 0 and checker.row + 1 <= self.row - 1:
+                        if self.board.board[checker.row + 1][checker.col - 1].color == "B":
+                            black_chess += 0.5
+                    if checker.col + 1 <= self.col - 1 and checker.row - 1 > 0:
+                        if self.board.is_in_board(checker.row - 1, checker.col + 1) and \
+                                self.board.board[checker.row - 1][checker.col + 1].color == "B":
+                            black_chess += 0.5
+                    if checker.col + 1 <= self.col - 1 and checker.row + 1 <= self.row - 1:
+                        if self.board.is_in_board(checker.row + 1, checker.row + 1) and \
+                                self.board.board[checker.row + 1][checker.row + 1].color == "B":
+                            black_chess += 0.5
+
+        king_dis = 1
+        if self.color == 1:
+            score = (black_king * 8 + black_chess) - (white_chess + white_king * 5)
+            for checker in black_king_list:
+                for opponent in white_chess_list:
+                    king_dis += self.calculate_distance(checker.row, checker.col, opponent.row, opponent.col)
+            # for checker in black_chess_list:
+            #    chess_dis += self.row - 1 - checker.row
+            score = score / king_dis
         else:
-            score = self.board.white_count - self.board.black_count
-            score += (white_king - black_king + white_chess - black_chess) * 1.5
+            score = (white_king * 8 + white_chess) - (black_chess + black_king * 5)
+            for checker in white_king_list:
+                for opponent in black_chess_list:
+                    king_dis += self.calculate_distance(checker.row, checker.col, opponent.row, opponent.col)
+
+            # for checker in white_chess_list:
+            #    chess_dis += checker.row
+            score = score / king_dis
 
         return score
 
