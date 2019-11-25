@@ -151,6 +151,33 @@ class StudentAI():
                         white_chess += 2
                     else:
                         black_chess += 2
+                # if checker.is_king:
+                #     if checker.color == "W":
+                #         white_king += 5
+                #         white_list.append(checker)
+                #     elif checker.color == 'B':
+                #         black_king += 5
+                #         white_list.append(checker)
+                # else:
+                #     if checker.color == "W":
+                #         white_list.append(checker)
+                #         white_chess += 2
+                #     elif checker.color == 'B':
+                #         black_list.append(checker)
+                #         black_chess += 2
+
+        if self.color is 1:
+            total_dis = 0
+            for checker in black_chess_list:
+                for opponent in white_chess_list:
+                    total_dis += self.calculate_distance(checker.row, checker.col, opponent.row, opponent.col)
+
+            score = (black_king - white_king + black_chess - white_chess) / total_dis
+        else:
+            total_dis = 1
+            for checker in white_chess_list:
+                for opponent in black_chess_list:
+                    total_dis += self.calculate_distance(checker.row, checker.col, opponent.row, opponent.col)
 
         if player is 1:
             score = self.board.black_count - self.board.white_count
