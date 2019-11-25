@@ -175,7 +175,7 @@ class StudentAI():
                         black_chess += 0.5
 
         if self.color is 1:
-            total_dis = 1
+            total_dis = 0
             for checker in black_chess_list:
                 for opponent in white_chess_list:
                     total_dis += self.calculate_distance(checker.row, checker.col, opponent.row, opponent.col)
