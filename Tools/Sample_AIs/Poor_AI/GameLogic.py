@@ -3,7 +3,7 @@ import sys
 sys.path.append("./AI_Extensions/")
 from AI_Extensions import *
 #from StudentAI import StudentAI
-from PoorAI import StudentAI
+from StudentAI import StudentAI
 from ManualAI import ManualAI
 
 class GameLogic:
@@ -107,18 +107,6 @@ class GameLogic:
                     StudentAI(self.col, self.row, self.p))
                 self.ai_list.append(
                     ManualAI(self.col, self.row, self.p))
-            self.gameloop(fh)
-        elif self.mode == 's' or self.mode == 'self':
-            if kwargs['order'] == '1':
-                self.ai_list.append(
-                    StudentAI(self.col, self.row, self.p))
-                self.ai_list.append(
-                    StudentAI(self.col, self.row, self.p))
-            else:
-                self.ai_list.append(
-                    StudentAI(self.col, self.row, self.p))
-                self.ai_list.append(
-                    StudentAI(self.col, self.row, self.p))
             self.gameloop(fh)
         elif self.mode == 'l' or self.mode == 'local' :
             self.ai_list.append(
