@@ -1,7 +1,4 @@
-# Group: DELMD
-# Team member: Huy Minh Tran    (huymt2)
-#              Fu Hui           (fhui2)
-
+from random import randint
 import math
 from BoardClasses import Move
 from BoardClasses import Board
@@ -10,13 +7,15 @@ from BoardClasses import Board
 # The following part should be completed by students.
 # Students can modify anything except the class name and exisiting functions and varibles.
 class StudentAI():
+
     def __init__(self, col, row, p):
         self.col = col
         self.row = row
         self.p = p
         self.board = Board(col, row, p)
         self.board.initialize_game()
-        self.run_time_depth = 3
+        self.color = ''
+        self.run_time_depth = 5
         self.opponent = {1: 2, 2: 1}
         self.color = 2
 
@@ -25,12 +24,11 @@ class StudentAI():
             self.board.make_move(move, self.opponent[self.color])
         else:
             self.color = 1
-
         move = self.best_move()
         self.board.make_move(move, self.color)
         return move
 
-    # ALPHA BETA PRUNE STARTS HERE
+
     def best_move(self) -> Move:
         moves = self.board.get_all_possible_moves(self.color)
         smart_move = Move([])
@@ -165,5 +163,3 @@ class StudentAI():
         b = abs(first_col - second_col)
         dis = max(a, b)
         return dis
-
-    # ALPHA BETA PRUNE ENDS HERE
