@@ -17,7 +17,7 @@ class StudentAI():
         self.board = Board(col, row, p)
         self.board.initialize_game()
         self.MAX_DEPTH = 1
-        self.run_time_depth = 5
+        self.run_time_depth = 3
         self.opponent = {1: 2, 2: 1}
         self.color = 2
 
@@ -139,55 +139,62 @@ class StudentAI():
 
         white_chess_list = []
         black_chess_list = []
-
         for all_checkers in self.board.board:
             for checker in all_checkers:
-                # if checker.is_king:
-                #     if checker.color == "W":
-                #         white_king += 5
-                #         white_list.append(checker)
-                #     elif checker.color == 'B':
-                #         black_king += 5
-                #         white_list.append(checker)
-                # else:
-                #     if checker.color == "W":
-                #         white_list.append(checker)
-                #         white_chess += 2
-                #     elif checker.color == 'B':
-                #         black_list.append(checker)
-                #         black_chess += 2
+                if checker.is_king:
+                    if checker.color == "W":
+                        white_king += 5
+                    elif checker.color == "B":
+                        black_king += 5
+                else:
+                    if checker.color == "w":
+                        white_chess += 2
+                    else:
+                        black_chess += 2
 
-                if checker.color == "W":
-                    white_chess_list.append(checker)
-                    white_chess += 1
-                    if checker.is_king:
-                        white_king += 3
-                        white_king_list.append(checker)
-                    if checker.col == 0 or checker.col == self.col - 1:
-                        white_chess += 0.5
-                if checker.color == "B":
-                    black_chess_list.append(checker)
-                    black_chess += 1
-                    if checker.is_king:
-                        black_king += 3
-                        black_king_list.append(checker)
-                    if checker.col == 0 or checker.col == self.col - 1:
-                        black_chess += 0.5
-
-        if self.color is 1:
-            total_dis = 1
-            for checker in black_chess_list:
-                for opponent in white_chess_list:
-                    total_dis += self.calculate_distance(checker.row, checker.col, opponent.row, opponent.col)
-
-            score = (black_king - white_king + black_chess - white_chess) / total_dis
+        if player is 1:
+            score = self.board.black_count - self.board.white_count
+            score += (black_king - white_king + black_chess - white_chess) * 1.5
         else:
-            total_dis = 1
-            for checker in white_chess_list:
-                for opponent in black_chess_list:
-                    total_dis += self.calculate_distance(checker.row, checker.col, opponent.row, opponent.col)
+            score = self.board.white_count - self.board.black_count
+            score += (white_king - black_king + white_chess - black_chess) * 1.5
 
-            score = (white_king - black_king + white_chess - black_chess) / total_dis
+        # for all_checkers in self.board.board:
+        #     for checker in all_checkers:
+        #         if checker.color == "W":
+        #             white_chess_list.append(checker)
+        #             white_chess += 1
+        #             if checker.is_king:
+        #                 white_king += 3
+        #                 white_king_list.append(checker)
+        #             if checker.col == 0 or checker.col == self.col - 1:
+        #                 white_chess += 0.5
+        #         if checker.color == "B":
+        #             black_chess_list.append(checker)
+        #             black_chess += 1
+        #             if checker.is_king:
+        #                 black_king += 3
+        #                 black_king_list.append(checker)
+        #             if checker.col == 0 or checker.col == self.col - 1:
+        #                 black_chess += 0.5
+        #
+        # total_dis = 1
+        # if self.color is 1:
+        #     for checker in black_chess_list:
+        #         for opponent in white_chess_list:
+        #             total_dis += self.calculate_distance(checker.row, checker.col, opponent.row, opponent.col)
+        #     for checker in black_king_list:
+        #         for opponent in white_chess_list:
+        #             total_dis -= self.calculate_distance(checker.row, checker.col, opponent.row, opponent.col)
+        #     score = (black_king - white_king + black_chess - white_chess) / total_dis
+        # else:
+        #     for checker in white_chess_list:
+        #         for opponent in black_chess_list:
+        #             total_dis += self.calculate_distance(checker.row, checker.col, opponent.row, opponent.col)
+        #     for checker in white_king_list:
+        #         for opponent in black_chess_list:
+        #             total_dis -= self.calculate_distance(checker.row, checker.col, opponent.row, opponent.col)
+        #     score = (white_king - black_king + white_chess - black_chess) / total_dis
 
         return score
 
