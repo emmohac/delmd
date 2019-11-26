@@ -15,7 +15,8 @@ class StudentAI():
         self.board = Board(col, row, p)
         self.board.initialize_game()
         self.color = ''
-        self.run_time_depth = 5
+        self.run_time_depth = 3
+        self.number_of_move = 0
         self.opponent = {1: 2, 2: 1}
         self.color = 2
 
@@ -24,10 +25,16 @@ class StudentAI():
             self.board.make_move(move, self.opponent[self.color])
         else:
             self.color = 1
+
+        if self.board.row == self.board.col:
+            self.run_time_depth = self.get_depth(True)
+        if self.board.row != self.board.col:
+            self.run_time_depth = self.get_depth(False)
+
         move = self.best_move()
         self.board.make_move(move, self.color)
+        self.number_of_move += 1
         return move
-
 
     def best_move(self) -> Move:
         moves = self.board.get_all_possible_moves(self.color)
@@ -139,21 +146,17 @@ class StudentAI():
 
         king_dis = 1
         if self.color == 1:
-            score = (black_king * 8 + black_chess) - (white_chess + white_king * 5)
+            score = self.board.black_count - self.board.white_count + (black_king * 8 + black_chess) - (white_chess + white_king * 5)
             for checker in black_king_list:
                 for opponent in white_chess_list:
                     king_dis += self.calculate_distance(checker.row, checker.col, opponent.row, opponent.col)
-            # for checker in black_chess_list:
-            #    chess_dis += self.row - 1 - checker.row
             score = score / king_dis
         else:
-            score = (white_king * 8 + white_chess) - (black_chess + black_king * 5)
+            score = 1 + self.board.white_count - self.board.black_count + (white_king * 8 + white_chess) - (black_chess + black_king * 5)
             for checker in white_king_list:
                 for opponent in black_chess_list:
                     king_dis += self.calculate_distance(checker.row, checker.col, opponent.row, opponent.col)
 
-            # for checker in white_chess_list:
-            #    chess_dis += checker.row
             score = score / king_dis
 
         return score
@@ -163,3 +166,17 @@ class StudentAI():
         b = abs(first_col - second_col)
         dis = max(a, b)
         return dis
+
+    def get_depth(self, is_equal):
+        if self.number_of_move != 0:
+            if is_equal:
+                if 1 <= self.number_of_move <= 8:
+                    return 5
+                else:
+                    return 7
+            else:
+                if 1 <= self.number_of_move <= 5:
+                    return 3
+                else:
+                    return 5
+        return 3
