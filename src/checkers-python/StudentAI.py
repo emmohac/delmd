@@ -15,7 +15,7 @@ class StudentAI():
         self.board = Board(col, row, p)
         self.board.initialize_game()
         self.color = ''
-        self.run_time_depth = 3
+        self.run_time_depth = 1
         self.number_of_move = 0
         self.opponent = {1: 2, 2: 1}
         self.color = 2
@@ -103,7 +103,7 @@ class StudentAI():
                         white_king_list.append(checker)
                     else:
                         white_chess_list.append(checker)
-                        white_chess += 1
+                        white_chess += 2
                     if checker.col == 0 or checker.col == self.col - 1:
                         white_chess += 1
                     if checker.col - 1 > 0 and checker.row - 1 > 0:
@@ -126,7 +126,7 @@ class StudentAI():
                         black_king += 1
                     else:
                         black_chess_list.append(checker)
-                        black_chess += 1
+                        black_chess += 2
                     if checker.col == 0 or checker.col == self.col - 1:
                         black_chess += 1
                     if checker.col - 1 > 0 and checker.row - 1 > 0:
@@ -177,6 +177,10 @@ class StudentAI():
             else:
                 if 1 <= self.number_of_move <= 5:
                     return 3
-                else:
+                if 6 <= self.number_of_move <= 10:
                     return 5
+                if self.number_of_move % 2 == 0:
+                    return 5
+                else:
+                    return 3
         return 3
