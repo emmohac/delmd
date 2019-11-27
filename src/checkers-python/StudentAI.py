@@ -182,7 +182,7 @@ class StudentAI():
             #for checker in white_chess_list:
             #    chess_dis += checker.row
             #score = score / (king_dis + chess_dis);
-
+		# fooooooooooooooooooo
         return score
 
     def calculate_distance(self, first_row, first_col, second_row, second_col) -> float:
