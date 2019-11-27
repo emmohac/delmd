@@ -1,4 +1,7 @@
-from random import randint
+# Group: DELMD
+# Team member: Huy Minh Tran    (huymt2)
+#              Fu Hui           (fhui2)
+
 import math
 from BoardClasses import Move
 from BoardClasses import Board
@@ -7,16 +10,14 @@ from BoardClasses import Board
 # The following part should be completed by students.
 # Students can modify anything except the class name and exisiting functions and varibles.
 class StudentAI():
-
     def __init__(self, col, row, p):
         self.col = col
         self.row = row
         self.p = p
         self.board = Board(col, row, p)
         self.board.initialize_game()
-        self.color = ''
-        self.run_time_depth = 1
         self.number_of_move = 0
+        self.run_time_depth = 5
         self.opponent = {1: 2, 2: 1}
         self.color = 2
 
@@ -26,16 +27,18 @@ class StudentAI():
         else:
             self.color = 1
 
+        move = self.best_move()
+
         if self.board.row == self.board.col:
             self.run_time_depth = self.get_depth(True)
         if self.board.row != self.board.col:
             self.run_time_depth = self.get_depth(False)
 
-        move = self.best_move()
         self.board.make_move(move, self.color)
         self.number_of_move += 1
         return move
 
+    # ALPHA BETA PRUNE STARTS HERE
     def best_move(self) -> Move:
         moves = self.board.get_all_possible_moves(self.color)
         smart_move = Move([])
@@ -45,6 +48,8 @@ class StudentAI():
             for move in checkers:
                 self.board.make_move(move, self.color)
                 heuristic = self.alpha_beta_prune(1, self.opponent[self.color], alpha, beta)
+                if len(self.board.get_all_possible_moves(self.opponent[self.color])) == 1:
+                       heuristic -= 100000
                 self.board.undo()
                 if heuristic > alpha:
                     alpha = heuristic
@@ -56,7 +61,7 @@ class StudentAI():
         all_moves = self.board.get_all_possible_moves(player)
 
         if not all_moves or depth is self.run_time_depth:
-            return self.evaluate()
+            return self.evaluate(player)
 
         if player is self.color:
             current_score = -math.inf
@@ -185,3 +190,5 @@ class StudentAI():
                 else:
                     return 3
         return 3
+
+    # ALPHA BETA PRUNE ENDS HERE
