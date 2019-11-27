@@ -83,6 +83,7 @@ class StudentAI():
                         break
             return current_score
 
+    # make new function to evaluate king
     def evaluate(self) -> float:
         white_king = 0
         white_chess = 0
