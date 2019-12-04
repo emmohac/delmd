@@ -63,8 +63,17 @@ class StudentAI():
     def alpha_beta_prune(self, depth, player, alpha, beta) -> float:
         all_moves = self.board.get_all_possible_moves(player)
 
-        if not all_moves or depth is self.run_time_depth:
+        if depth is self.run_time_depth:
             return self.evaluate()
+        
+        if not all_moves:
+            winplayer = self.board.is_win(self.opponent[player])
+            if winplayer == self.color:
+                return 100000
+            elif winplayer == self.opponent[self.color]:
+                return -100000
+            else:
+                return 0
 
         if player is self.color:
             current_score = -math.inf
