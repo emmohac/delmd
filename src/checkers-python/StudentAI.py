@@ -51,8 +51,6 @@ class StudentAI():
             for move in checkers:
                 self.board.make_move(move, self.color)
                 heuristic = self.alpha_beta_prune(1, self.opponent[self.color], alpha, beta)
-                #if len(self.board.get_all_possible_moves(self.opponent[self.color])) == 1:
-                #       heuristic -= 100000
                 self.board.undo()
                 if heuristic > alpha:
                     alpha = heuristic
